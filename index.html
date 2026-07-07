@@ -121,6 +121,16 @@
         .pct-input { background: #fffaf0; border-color: #fbd38d; font-weight: bold; color: #dd6b20; text-align: center; }
         .nav-input, .div-input { text-align: center; }
 
+        /* 新增：單檔基金月配息小字顯示 */
+        .fund-footer {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 12px;
+            color: #38a169;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
         .warning { 
             color: #e53e3e; 
             font-weight: bold; 
@@ -139,7 +149,7 @@
             padding: 16px; 
             border-radius: 12px; 
             margin-top: 20px; 
-            display: block; /* 修正：改成預設直接顯示 */
+            display: block; 
         }
         .result-item { 
             display: flex; 
@@ -197,7 +207,7 @@
         <div class="fund-card fund-row">
             <div class="fund-header">
                 <span class="fund-name">基金 A</span>
-                <span class="fund-twd-payout">NT$ 0</span>
+                <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -213,11 +223,13 @@
                     <input type="number" class="div-input" value="0.051" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
+            <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
+
         <div class="fund-card fund-row">
             <div class="fund-header">
                 <span class="fund-name">基金 B</span>
-                <span class="fund-twd-payout">NT$ 0</span>
+                <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -233,11 +245,13 @@
                     <input type="number" class="div-input" value="0.0425" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
+            <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
+
         <div class="fund-card fund-row">
             <div class="fund-header">
                 <span class="fund-name">基金 C</span>
-                <span class="fund-twd-payout">NT$ 0</span>
+                <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -253,11 +267,13 @@
                     <input type="number" class="div-input" value="0.0485" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
+            <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
+
         <div class="fund-card fund-row">
             <div class="fund-header">
                 <span class="fund-name">基金 D</span>
-                <span class="fund-twd-payout">NT$ 0</span>
+                <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -273,11 +289,13 @@
                     <input type="number" class="div-input" value="0.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
+            <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
+
         <div class="fund-card fund-row">
             <div class="fund-header">
                 <span class="fund-name">基金 E</span>
-                <span class="fund-twd-payout">NT$ 0</span>
+                <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -293,6 +311,7 @@
                     <input type="number" class="div-input" value="0.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
+            <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
     </div>
     
@@ -364,19 +383,25 @@ function calculatePortfolio() {
         const nav = parseFloat(row.querySelector('.nav-input').value) || 0;
         const divPerUnit = parseFloat(row.querySelector('.div-input').value) || 0;
         const payoutSpan = row.querySelector('.fund-twd-payout');
+        const footerDiv = row.querySelector('.fund-footer');
+
+        // 1. 計算該檔基金實際分到的投保金額 (台幣)
+        const fundPremiumAllocated = totalNetTwd * (pct / 100);
+        payoutSpan.innerText = "投入金額：NT$ " + Math.round(fundPremiumAllocated).toLocaleString();
 
         if (pct === 0 || nav <= 0 || divPerUnit < 0) {
-            payoutSpan.innerText = "NT$ 0";
+            footerDiv.innerText = "預估月配息：NT$ 0";
             return;
         }
 
+        // 2. 計算配息
         const fundNetUsd = totalNetUsd * (pct / 100);
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
         const fundTwdPayout = fundUsdPayout * exchangeRate;
 
         aggregatedTwdPayout += fundTwdPayout;
-        payoutSpan.innerText = "NT$ " + Math.round(fundTwdPayout).toLocaleString();
+        footerDiv.innerText = "預估月配息：NT$ " + Math.round(fundTwdPayout).toLocaleString();
     });
 
     document.getElementById('tier').innerText = tierText;
@@ -389,7 +414,6 @@ function calculatePortfolio() {
     document.getElementById('totalTwdPayout').innerText = "NT$ " + Math.round(aggregatedTwdPayout).toLocaleString() + " 元";
 }
 
-// 修正：確保一進網頁，DOM 載入完成就馬上跑一次計算把資料秀出來
 window.addEventListener("load", calculatePortfolio);
 document.addEventListener("DOMContentLoaded", calculatePortfolio);
 </script>
