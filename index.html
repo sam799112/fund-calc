@@ -350,12 +350,29 @@
 </div>
 
 <script>
+let isUserTypingRate = false;
+
+// 當使用者自己修改匯率時，立即觸發重新計算
+document.getElementById('rateInput').addEventListener('input', () => {
+    isUserTypingRate = true;
+    calculatePortfolio();
+});
+document.getElementById('rateInput').addEventListener('focus', () => {
+    isUserTypingRate = true;
+});
+
 async function fetchExchangeRate() {
+    if (isUserTypingRate) {
+        calculatePortfolio();
+        return;
+    }
+    
     try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
         if (!response.ok) throw new Error('網路回應不成功');
         const data = await response.json();
-        if (data && data.rates && data.rates.TWD) {
+        
+        if (data && data.rates && data.rates.TWD && !isUserTypingRate) {
             const twdRate = Math.round(data.rates.TWD * 100) / 100;
             document.getElementById('rateInput').value = twdRate;
         }
@@ -427,6 +444,8 @@ function calculatePortfolio() {
         const fundNetUsd = totalNetUsd * (pct / 100);
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
+        
+        // 關鍵修正：這裡的換算必須完全使用當前畫面上顯示的最新變動匯率
         const fundTwdPayout = fundUsdPayout * exchangeRate;
 
         aggregatedTwdPayout += fundTwdPayout;
