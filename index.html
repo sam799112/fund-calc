@@ -350,12 +350,102 @@
 </div>
 
 <script>
-// 新增：向公開 API 獲取即時台幣匯率的功能
 async function fetchExchangeRate() {
     try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
         if (!response.ok) throw new Error('網路回應不成功');
         const data = await response.json();
         if (data && data.rates && data.rates.TWD) {
-            // 四捨五入到小數點後兩位
-            const twdRate = Math.round(data
+            const twdRate = Math.round(data.rates.TWD * 100) / 100;
+            document.getElementById('rateInput').value = twdRate;
+        }
+    } catch (error) {
+        console.error('無法取得即時匯率，將使用預設數值：', error);
+    } finally {
+        calculatePortfolio();
+    }
+}
+
+function calculatePortfolio() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const exchangeRate = parseFloat(document.getElementById('rateInput').value);
+    const resultBox = document.getElementById('result');
+    const warningBox = document.getElementById('pctWarning');
+    
+    if (isNaN(amount) || amount <= 0 || isNaN(exchangeRate) || exchangeRate <= 0) {
+        resultBox.style.display = 'none';
+        return;
+    }
+
+    const rows = document.querySelectorAll('.fund-row');
+    let totalPct = 0;
+    
+    rows.forEach(row => {
+        const pct = parseFloat(row.querySelector('.pct-input').value) || 0;
+        totalPct += pct;
+    });
+
+    totalPct = Math.round(totalPct * 100) / 100;
+    document.getElementById('currentTotalPct').innerText = totalPct;
+
+    if (totalPct !== 100) {
+        warningBox.style.display = 'block';
+        resultBox.style.display = 'none';
+        return;
+    } else {
+        warningBox.style.display = 'none';
+        resultBox.style.display = 'block';
+    }
+
+    let feeRate = 0; let tierText = "";
+    if (amount < 2000000) { feeRate = 0.05; tierText = "200 萬以內(不含)"; }
+    else if (amount >= 2000000 && amount < 5000000) { feeRate = 0.04; tierText = "200 萬(含) ~ 未滿 500 萬"; }
+    else if (amount >= 5000000 && amount < 10000000) { feeRate = 0.03; tierText = "500 萬(含) ~ 未滿 1,000 萬"; }
+    else { feeRate = 0.02; tierText = "1,000 萬(含)以上"; }
+
+    const totalPremium = amount * feeRate;
+    const totalNetTwd = amount - totalPremium; 
+    const totalNetUsd = totalNetTwd / exchangeRate;
+
+    let aggregatedTwdPayout = 0;
+
+    rows.forEach(row => {
+        const pct = parseFloat(row.querySelector('.pct-input').value) || 0;
+        const nav = parseFloat(row.querySelector('.nav-input').value) || 0;
+        const divPerUnit = parseFloat(row.querySelector('.div-input').value) || 0;
+        const payoutSpan = row.querySelector('.fund-twd-payout');
+        const footerDiv = row.querySelector('.fund-footer');
+
+        const fundPremiumAllocated = totalNetTwd * (pct / 100);
+        payoutSpan.innerText = "投入金額：NT$ " + Math.round(fundPremiumAllocated).toLocaleString();
+
+        if (pct === 0 || nav <= 0 || divPerUnit < 0) {
+            footerDiv.innerText = "預估月配息：NT$ 0";
+            return;
+        }
+
+        const fundNetUsd = totalNetUsd * (pct / 100);
+        const fundUnits = fundNetUsd / nav;
+        const fundUsdPayout = fundUnits * divPerUnit;
+        const fundTwdPayout = fundUsdPayout * exchangeRate;
+
+        aggregatedTwdPayout += fundTwdPayout;
+        footerDiv.innerText = "預估月配息：NT$ " + Math.round(fundTwdPayout).toLocaleString();
+    });
+
+    document.getElementById('tier').innerText = tierText;
+    document.getElementById('feeRate').innerText = (feeRate * 100) + "%";
+    document.getElementById('totalPremium').innerText = "NT$ " + Math.round(totalPremium).toLocaleString() + " 元";
+    
+    document.getElementById('totalNetTwd').innerText = "NT$ " + Math.round(totalNetTwd).toLocaleString() + " 元";
+    document.getElementById('totalNetUsd').innerText = "$ " + totalNetUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " 美元";
+    
+    document.getElementById('totalTwdPayout').innerText = "NT$ " + Math.round(aggregatedTwdPayout).toLocaleString() + " 元";
+}
+
+window.addEventListener("load", fetchExchangeRate);
+document.addEventListener("DOMContentLoaded", fetchExchangeRate);
+</script>
+
+</body>
+</html>
