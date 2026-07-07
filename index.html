@@ -350,16 +350,13 @@
 </div>
 
 <script>
-// 用來記錄使用者是否開始手動輸入匯率
 let isUserTypingRate = false;
 
 async function fetchExchangeRate() {
-    // 如果使用者已經在手動輸入了，就絕對不覆蓋數字
     if (isUserTypingRate) {
         calculatePortfolio();
         return;
     }
-    
     try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
         if (!response.ok) throw new Error('網路回應不成功');
@@ -370,7 +367,7 @@ async function fetchExchangeRate() {
             document.getElementById('rateInput').value = twdRate;
         }
     } catch (error) {
-        console.error('無法取得即時匯率，將使用預設數值：', error);
+        console.error('無法取得即時匯率：', error);
     } finally {
         calculatePortfolio();
     }
@@ -383,7 +380,6 @@ function calculatePortfolio() {
     const warningBox = document.getElementById('pctWarning');
     
     if (isNaN(amount) || amount <= 0 || isNaN(exchangeRate) || exchangeRate <= 0) {
-        resultBox.style.display = 'none';
         return;
     }
 
@@ -395,16 +391,22 @@ function calculatePortfolio() {
         totalPct += pct;
     });
 
+    // 關鍵修正 1：利用四捨五入解決 JavaScript 浮點數微小誤差問題
     totalPct = Math.round(totalPct * 100) / 100;
     document.getElementById('currentTotalPct').innerText = totalPct;
 
     if (totalPct !== 100) {
         warningBox.style.display = 'block';
-        resultBox.style.display = 'none';
+        // 比例不對時，僅將最下方結果欄重置為橫線，避免程式中斷
+        document.getElementById('tier').innerText = "-";
+        document.getElementById('feeRate').innerText = "-";
+        document.getElementById('totalPremium').innerText = "-";
+        document.getElementById('totalNetTwd').innerText = "-";
+        document.getElementById('totalNetUsd').innerText = "-";
+        document.getElementById('totalTwdPayout').innerText = "-";
         return;
     } else {
         warningBox.style.display = 'none';
-        resultBox.style.display = 'block';
     }
 
     let feeRate = 0; let tierText = "";
@@ -438,7 +440,7 @@ function calculatePortfolio() {
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
         
-        // 使用畫面上最新抓到或手動輸入的 exchangeRate 進行即時換算
+        // 關鍵修正 2：每個字卡的配息金額，100% 強制綁定畫面上最新的變動匯率
         const fundTwdPayout = fundUsdPayout * exchangeRate;
 
         aggregatedTwdPayout += fundTwdPayout;
@@ -455,7 +457,6 @@ function calculatePortfolio() {
     document.getElementById('totalTwdPayout').innerText = "NT$ " + Math.round(aggregatedTwdPayout).toLocaleString() + " 元";
 }
 
-// 網頁開啟與載入時抓取即時匯率
 window.addEventListener("load", fetchExchangeRate);
 document.addEventListener("DOMContentLoaded", fetchExchangeRate);
 </script>
