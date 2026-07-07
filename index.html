@@ -212,7 +212,7 @@
         </div>
         <div class="input-group">
             <label for="rateInput">2. 目前美元匯率</label>
-            <input type="number" id="rateInput" value="32.1" step="0.01" inputmode="decimal" oninput="calculatePortfolio()">
+            <input type="number" id="rateInput" value="32.1" step="0.01" inputmode="decimal" onfocus="isUserTypingRate = true;" oninput="isUserTypingRate = true; calculatePortfolio();">
         </div>
     </div>
 
@@ -350,18 +350,11 @@
 </div>
 
 <script>
+// 用來記錄使用者是否開始手動輸入匯率
 let isUserTypingRate = false;
 
-// 當使用者自己修改匯率時，立即觸發重新計算
-document.getElementById('rateInput').addEventListener('input', () => {
-    isUserTypingRate = true;
-    calculatePortfolio();
-});
-document.getElementById('rateInput').addEventListener('focus', () => {
-    isUserTypingRate = true;
-});
-
 async function fetchExchangeRate() {
+    // 如果使用者已經在手動輸入了，就絕對不覆蓋數字
     if (isUserTypingRate) {
         calculatePortfolio();
         return;
@@ -445,7 +438,7 @@ function calculatePortfolio() {
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
         
-        // 關鍵修正：這裡的換算必須完全使用當前畫面上顯示的最新變動匯率
+        // 使用畫面上最新抓到或手動輸入的 exchangeRate 進行即時換算
         const fundTwdPayout = fundUsdPayout * exchangeRate;
 
         aggregatedTwdPayout += fundTwdPayout;
@@ -462,6 +455,7 @@ function calculatePortfolio() {
     document.getElementById('totalTwdPayout').innerText = "NT$ " + Math.round(aggregatedTwdPayout).toLocaleString() + " 元";
 }
 
+// 網頁開啟與載入時抓取即時匯率
 window.addEventListener("load", fetchExchangeRate);
 document.addEventListener("DOMContentLoaded", fetchExchangeRate);
 </script>
