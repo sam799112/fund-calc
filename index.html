@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>投資配息組合</title>
+    <title>投資配息組合精算工具</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -203,16 +203,23 @@
 <body>
 
 <div class="card">
-    <h2>📊 投資配息組合</h2>
+    <h2>📊 投資配息組合精算工具</h2>
     
     <div class="input-row">
         <div class="input-group">
             <label for="amount">1. 總保費 (台幣)</label>
             <input type="number" id="amount" value="1000000" inputmode="numeric" oninput="calculatePortfolio()">
         </div>
+    </div>
+    
+    <div class="input-row">
         <div class="input-group">
-            <label for="rateInput">2. 目前美元匯率</label>
-            <input type="number" id="rateInput" value="32.1" step="0.01" inputmode="decimal" onfocus="isUserTypingRate = true;" oninput="isUserTypingRate = true; calculatePortfolio();">
+            <label for="buyRateInput">2-1. 進場換匯匯率</label>
+            <input type="number" id="buyRateInput" value="32.1" step="0.01" inputmode="decimal" onfocus="isUserTypingRate = true;" oninput="isUserTypingRate = true; document.getElementById('payoutRateInput').value = this.value; calculatePortfolio();">
+        </div>
+        <div class="input-group">
+            <label for="payoutRateInput">2-2. 未來配息匯率 (看波動)</label>
+            <input type="number" id="payoutRateInput" value="32.1" step="0.01" inputmode="decimal" oninput="calculatePortfolio()">
         </div>
     </div>
 
@@ -364,7 +371,8 @@ async function fetchExchangeRate() {
         
         if (data && data.rates && data.rates.TWD && !isUserTypingRate) {
             const twdRate = Math.round(data.rates.TWD * 100) / 100;
-            document.getElementById('rateInput').value = twdRate;
+            document.getElementById('buyRateInput').value = twdRate;
+            document.getElementById('payoutRateInput').value = twdRate;
         }
     } catch (error) {
         console.error('無法取得即時匯率：', error);
@@ -375,11 +383,11 @@ async function fetchExchangeRate() {
 
 function calculatePortfolio() {
     const amount = parseFloat(document.getElementById('amount').value);
-    const exchangeRate = parseFloat(document.getElementById('rateInput').value);
-    const resultBox = document.getElementById('result');
+    const buyRate = parseFloat(document.getElementById('buyRateInput').value);
+    const payoutRate = parseFloat(document.getElementById('payoutRateInput').value);
     const warningBox = document.getElementById('pctWarning');
     
-    if (isNaN(amount) || amount <= 0 || isNaN(exchangeRate) || exchangeRate <= 0) {
+    if (isNaN(amount) || amount <= 0 || isNaN(buyRate) || buyRate <= 0 || isNaN(payoutRate) || payoutRate <= 0) {
         return;
     }
 
@@ -391,13 +399,11 @@ function calculatePortfolio() {
         totalPct += pct;
     });
 
-    // 關鍵修正 1：利用四捨五入解決 JavaScript 浮點數微小誤差問題
     totalPct = Math.round(totalPct * 100) / 100;
     document.getElementById('currentTotalPct').innerText = totalPct;
 
     if (totalPct !== 100) {
         warningBox.style.display = 'block';
-        // 比例不對時，僅將最下方結果欄重置為橫線，避免程式中斷
         document.getElementById('tier').innerText = "-";
         document.getElementById('feeRate').innerText = "-";
         document.getElementById('totalPremium').innerText = "-";
@@ -417,7 +423,7 @@ function calculatePortfolio() {
 
     const totalPremium = amount * feeRate;
     const totalNetTwd = amount - totalPremium; 
-    const totalNetUsd = totalNetTwd / exchangeRate;
+    const totalNetUsd = totalNetTwd / buyRate; // 以進場換匯匯率計算單位數
 
     let aggregatedTwdPayout = 0;
 
@@ -440,8 +446,8 @@ function calculatePortfolio() {
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
         
-        // 關鍵修正 2：每個字卡的配息金額，100% 強制綁定畫面上最新的變動匯率
-        const fundTwdPayout = fundUsdPayout * exchangeRate;
+        // 關鍵核心調整：配息金額改乘以「未來配息匯率」，成功模擬出匯率劇烈波動時的收益變化！
+        const fundTwdPayout = fundUsdPayout * payoutRate;
 
         aggregatedTwdPayout += fundTwdPayout;
         footerDiv.innerText = "預估月配息：NT$ " + Math.round(fundTwdPayout).toLocaleString();
