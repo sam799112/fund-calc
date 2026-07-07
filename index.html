@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>專業基金組合配置精算工具</title>
+    <title>投資配息組合</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -54,10 +54,12 @@
             font-size: 16px; 
             background: #fff;
             transition: all 0.2s;
+        }
+        input[type="number"] {
             -moz-appearance: textfield;
         }
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
@@ -96,12 +98,27 @@
             border-bottom: 1px dashed #cbd5e0;
             padding-bottom: 6px;
             margin-bottom: 8px;
+            gap: 10px;
         }
-        .fund-name {
+        
+        /* 新增：可自行輸入基金名稱的樣式 */
+        .fund-name-input {
             font-weight: bold;
             color: #2b6cb0;
             font-size: 15px;
+            border: none;
+            background: transparent;
+            padding: 4px;
+            width: 45%;
+            border-bottom: 1px solid transparent;
+            border-radius: 0;
         }
+        .fund-name-input:focus {
+            border-bottom: 1px solid #3182ce;
+            box-shadow: none;
+            background: #edf2f7;
+        }
+        
         .fund-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -121,7 +138,6 @@
         .pct-input { background: #fffaf0; border-color: #fbd38d; font-weight: bold; color: #dd6b20; text-align: center; }
         .nav-input, .div-input { text-align: center; }
 
-        /* 新增：單檔基金月配息小字顯示 */
         .fund-footer {
             display: flex;
             justify-content: flex-end;
@@ -182,17 +198,17 @@
             font-size: 28px; 
             display: block;
         }
-        .fund-twd-payout { font-weight: bold; color: #2d3748; font-size: 14px; text-align: right; }
+        .fund-twd-payout { font-weight: bold; color: #2d3748; font-size: 13px; text-align: right; white-space: nowrap; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>📊 投資組合 5 檔基金配置系統</h2>
+    <h2>📊 投資配息組合</h2>
     
     <div class="input-row">
         <div class="input-group">
-            <label for="amount">1. 申購總金額 (台幣)</label>
+            <label for="amount">1. 總保費 (台幣)</label>
             <input type="number" id="amount" value="1000000" inputmode="numeric" oninput="calculatePortfolio()">
         </div>
         <div class="input-group">
@@ -204,9 +220,10 @@
     <span class="section-title">3. 設定配置比例與參數（須等於 100%）</span>
     
     <div class="fund-list">
+        <!-- 基金 A -->
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <span class="fund-name">基金 A</span>
+                <input type="text" class="fund-name-input" value="基金 A" placeholder="點擊輸入基金名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -226,9 +243,10 @@
             <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
 
+        <!-- 基金 B -->
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <span class="fund-name">基金 B</span>
+                <input type="text" class="fund-name-input" value="基金 B" placeholder="點擊輸入基金名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -248,9 +266,10 @@
             <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
 
+        <!-- 基金 C -->
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <span class="fund-name">基金 C</span>
+                <input type="text" class="fund-name-input" value="基金 C" placeholder="點擊輸入基金名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -270,9 +289,10 @@
             <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
 
+        <!-- 基金 D -->
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <span class="fund-name">基金 D</span>
+                <input type="text" class="fund-name-input" value="基金 D" placeholder="點擊輸入基金名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -292,9 +312,10 @@
             <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
 
+        <!-- 基金 E -->
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <span class="fund-name">基金 E</span>
+                <input type="text" class="fund-name-input" value="基金 E" placeholder="點擊輸入基金名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -385,7 +406,6 @@ function calculatePortfolio() {
         const payoutSpan = row.querySelector('.fund-twd-payout');
         const footerDiv = row.querySelector('.fund-footer');
 
-        // 1. 計算該檔基金實際分到的投保金額 (台幣)
         const fundPremiumAllocated = totalNetTwd * (pct / 100);
         payoutSpan.innerText = "投入金額：NT$ " + Math.round(fundPremiumAllocated).toLocaleString();
 
@@ -394,7 +414,6 @@ function calculatePortfolio() {
             return;
         }
 
-        // 2. 計算配息
         const fundNetUsd = totalNetUsd * (pct / 100);
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
