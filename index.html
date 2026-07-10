@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>投資配息組合精算工具</title>
+    <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "edefb5ffc56240d287ee7cc74a055a64"}'></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -423,7 +424,7 @@ function calculatePortfolio() {
 
     const totalPremium = amount * feeRate;
     const totalNetTwd = amount - totalPremium; 
-    const totalNetUsd = totalNetTwd / buyRate; // 以進場換匯匯率計算單位數
+    const totalNetUsd = totalNetTwd / buyRate; 
 
     let aggregatedTwdPayout = 0;
 
@@ -446,7 +447,6 @@ function calculatePortfolio() {
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
         
-        // 關鍵核心調整：配息金額改乘以「未來配息匯率」，成功模擬出匯率劇烈波動時的收益變化！
         const fundTwdPayout = fundUsdPayout * payoutRate;
 
         aggregatedTwdPayout += fundTwdPayout;
