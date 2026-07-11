@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>投資配息組合精算工具 - 雲端自動更新版</title>
+    <title>投資配息組合精算工具</title>
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "edefb5ffc56240d287ee7cc74a055a64"}'></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -89,7 +89,7 @@
             display: block;
         }
 
-        /* 頂部快選面板樣式 */
+        /* 快選面板樣式 */
         .quick-select-panel {
             background: #edf2f7;
             padding: 12px;
@@ -275,9 +275,9 @@
 
     <div class="quick-select-panel">
         <div class="panel-row">
-            <button onclick="insertCloudFund('allianz')" class="quick-btn">導入安聯(DSP5)</button>
-            <button onclick="insertCloudFund('jpm')" class="quick-btn jpm">導入摩根多重</button>
-            <span style="font-size: 12px; color: #4a5568;">➔ 填入：</span>
+            <button onclick="insertCloudFund('allianz')" class="quick-btn">導入 DSP5</button>
+            <button onclick="insertCloudFund('jpm')" class="quick-btn jpm">導入 JFP11</button>
+            <span style="font-size: 12px; color: #4a5568;">➔ 至：</span>
             <select id="targetFundSelect" class="quick-dropdown">
                 <option value="0">基金 A</option>
                 <option value="1">基金 B</option>
@@ -293,7 +293,7 @@
     <div class="fund-list">
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <input type="text" class="fund-name-input" value="安聯收益成長(AM)" placeholder="輸入名稱">
+                <input type="text" class="fund-name-input" value="DSP5" placeholder="輸入名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -315,7 +315,7 @@
 
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <input type="text" class="fund-name-input" value="摩根多重資產(M)" placeholder="輸入名稱">
+                <input type="text" class="fund-name-input" value="JFP11" placeholder="輸入名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -423,9 +423,8 @@
 
 <script>
 let isUserTypingRate = false;
-let cloudData = null; // 儲存雲端下載下來的最新數據
+let cloudData = null; 
 
-// 初始化：同時抓匯率與 GitHub 最新基金資料
 async function initializeApp() {
     await fetchExchangeRate();
     await fetchCloudFundsData();
@@ -453,7 +452,6 @@ async function fetchExchangeRate() {
     }
 }
 
-// 🌐 核心功能：全自動連到 GitHub 抓取最新淨值與配息
 async function fetchCloudFundsData() {
     const statusDiv = document.getElementById('cloudStatus');
     try {
@@ -464,12 +462,11 @@ async function fetchCloudFundsData() {
         statusDiv.innerText = `✅ 雲端資料同步成功 (資料日期: ${cloudData.date || '今日'})`;
         statusDiv.className = "cloud-status success";
         
-        // 畫面上預設填入最新抓到的雲端數字
         const rows = document.querySelectorAll('.fund-row');
-        // 預設將最新安聯填入基金 A
+        // 預設將最新 DSP5 數據填入第一欄
         rows[0].querySelector('.nav-input').value = cloudData.nav;
         rows[0].querySelector('.div-input').value = cloudData.div;
-        // 預設將最新摩根填入基金 B
+        // 預設將最新 JFP11 數據填入第二欄
         rows[1].querySelector('.nav-input').value = cloudData.jpm_nav;
         rows[1].querySelector('.div-input').value = cloudData.jpm_div;
         
@@ -481,7 +478,6 @@ async function fetchCloudFundsData() {
     }
 }
 
-// 🎯 一鍵導入按鈕邏輯：可以自由選擇把最新的安聯或摩根填入 A~E 的任何一格
 function insertCloudFund(type) {
     if (!cloudData) {
         alert("尚未連線到雲端資料庫，請檢查網路！");
@@ -493,11 +489,11 @@ function insertCloudFund(type) {
     const targetRow = rows[targetIndex];
     
     if (type === 'allianz') {
-        targetRow.querySelector('.fund-name-input').value = "安聯收益成長(AM)";
+        targetRow.querySelector('.fund-name-input').value = "DSP5";
         targetRow.querySelector('.nav-input').value = cloudData.nav;
         targetRow.querySelector('.div-input').value = cloudData.div;
     } else if (type === 'jpm') {
-        targetRow.querySelector('.fund-name-input').value = "摩根多重資產(M)";
+        targetRow.querySelector('.fund-name-input').value = "JFP11";
         targetRow.querySelector('.nav-input').value = cloudData.jpm_nav;
         targetRow.querySelector('.div-input').value = cloudData.jpm_div;
     }
