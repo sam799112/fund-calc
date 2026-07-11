@@ -106,28 +106,31 @@
         .panel-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
         .quick-btn {
-            padding: 6px 12px;
+            padding: 6px 10px;
             background: #3182ce;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             transition: background 0.2s;
         }
         .quick-btn:hover { background: #2b6cb0; }
         .quick-btn.jpm { background: #805ad5; }
         .quick-btn.jpm:hover { background: #6b46c1; }
+        .quick-btn.frp { background: #dd6b20; }
+        .quick-btn.frp:hover { background: #c05621; }
         
         .quick-dropdown {
-            padding: 5px 8px;
+            padding: 5px 6px;
             border-radius: 6px;
             border: 1px solid #cbd5e0;
-            font-size: 13px;
+            font-size: 12px;
             color: #4a5568;
             background-color: white;
             cursor: pointer;
@@ -146,7 +149,6 @@
             border-radius: 10px;
             padding: 12px;
         }
-        .fund-card.loading { opacity: 0.6; }
         .fund-header {
             display: flex;
             justify-content: space-between;
@@ -285,6 +287,7 @@
         <div class="panel-row">
             <button onclick="insertCloudFund('allianz')" class="quick-btn">DSP5</button>
             <button onclick="insertCloudFund('jpm')" class="quick-btn jpm">JFP11</button>
+            <button onclick="insertCloudFund('frp4')" class="quick-btn frp">FRP4</button>
             <span style="font-size: 12px; color: #4a5568;">➔ 至：</span>
             <select id="targetFundSelect" class="quick-dropdown">
                 <option value="0">基金 A</option>
@@ -299,7 +302,7 @@
     <span class="section-title">3. 設定配置比例與參數（須等於 100%）</span>
     
     <div class="fund-list">
-        <div class="fund-card fund-row" id="row-0">
+        <div class="fund-card fund-row">
             <div class="fund-header">
                 <input type="text" class="fund-name-input" value="DSP5" placeholder="輸入名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
@@ -311,17 +314,17 @@
                 </div>
                 <div class="grid-item">
                     <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="8.77" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="nav-input" value="8.7731" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
                     <label>配息 (USD)</label>
-                    <input type="number" class="div-input" value="0.055" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="div-input" value="0.0550" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
             <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
 
-        <div class="fund-card fund-row" id="row-1">
+        <div class="fund-card fund-row">
             <div class="fund-header">
                 <input type="text" class="fund-name-input" value="JFP11" placeholder="輸入名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
@@ -333,11 +336,11 @@
                 </div>
                 <div class="grid-item">
                     <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="74.76" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="nav-input" value="74.7600" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
                     <label>配息 (USD)</label>
-                    <input type="number" class="div-input" value="0.693" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="div-input" value="0.6930" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
             <div class="fund-footer">預估月配息：NT$ 0</div>
@@ -345,7 +348,7 @@
 
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <input type="text" class="fund-name-input" value="基金 C" placeholder="輸入名稱">
+                <input type="text" class="fund-name-input" value="FRP4" placeholder="輸入名稱">
                 <span class="fund-twd-payout">投入金額：NT$ 0</span>
             </div>
             <div class="fund-grid">
@@ -355,11 +358,11 @@
                 </div>
                 <div class="grid-item">
                     <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="10.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="nav-input" value="9.4500" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
                     <label>配息 (USD)</label>
-                    <input type="number" class="div-input" value="0.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="div-input" value="0.0670" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
             <div class="fund-footer">預估月配息：NT$ 0</div>
@@ -433,7 +436,8 @@
 let isUserTypingRate = false;
 let fubonCloudData = {
     dsp5: { nav: 8.7731, div: 0.055 },
-    jfp11: { nav: 74.7600, div: 0.693 }
+    jfp11: { nav: 74.7600, div: 0.693 },
+    frp4: { nav: 9.4500, div: 0.0670 }
 }; 
 
 async function initializeApp() {
@@ -462,18 +466,15 @@ async function fetchExchangeRate() {
     }
 }
 
-// 🌐 跨時空直連：直接打破限制讀取富邦專屬後台數據庫！
 async function fetchFubonOfficialData() {
     const statusDiv = document.getElementById('cloudStatus');
     try {
-        // 使用一網打盡的公開代理管線（CORS proxy）直接下載富邦該網頁的乾淨代碼
         const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://raw.githubusercontent.com/sam799112/fund-calc/main/data.json");
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error('富邦資料讀取失敗');
         const proxyData = await response.json();
         const data = JSON.parse(proxyData.contents);
         
-        // 解析富邦底層傳回來的精確數字
         fubonCloudData.dsp5.nav = parseFloat(data.nav) || 8.7731;
         fubonCloudData.dsp5.div = parseFloat(data.div) || 0.055;
         fubonCloudData.jfp11.nav = parseFloat(data.jpm_nav) || 74.7600;
@@ -482,12 +483,13 @@ async function fetchFubonOfficialData() {
         statusDiv.innerText = `✅ 富邦人壽官方數據同步成功 (結算日期: ${data.date || '今日'})`;
         statusDiv.className = "cloud-status success";
         
-        // 即時反映到畫面的基金欄位上
         const rows = document.querySelectorAll('.fund-row');
         rows[0].querySelector('.nav-input').value = fubonCloudData.dsp5.nav;
         rows[0].querySelector('.div-input').value = fubonCloudData.dsp5.div;
         rows[1].querySelector('.nav-input').value = fubonCloudData.jfp11.nav;
         rows[1].querySelector('.div-input').value = fubonCloudData.jfp11.div;
+        rows[2].querySelector('.nav-input').value = fubonCloudData.frp4.nav;
+        rows[2].querySelector('.div-input').value = fubonCloudData.frp4.div;
         
         calculatePortfolio();
     } catch (e) {
@@ -510,6 +512,10 @@ function insertCloudFund(type) {
         targetRow.querySelector('.fund-name-input').value = "JFP11";
         targetRow.querySelector('.nav-input').value = fubonCloudData.jfp11.nav;
         targetRow.querySelector('.div-input').value = fubonCloudData.jfp11.div;
+    } else if (type === 'frp4') {
+        targetRow.querySelector('.fund-name-input').value = "FRP4";
+        targetRow.querySelector('.nav-input').value = fubonCloudData.frp4.nav;
+        targetRow.querySelector('.div-input').value = fubonCloudData.frp4.div;
     }
     
     calculatePortfolio();
