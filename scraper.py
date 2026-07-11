@@ -30,9 +30,9 @@ def get_fund_data():
     jpm_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=jfzn3")
     jpm_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=JFZN3")
 
-    # 3. 富蘭克林坦伯頓全球債 (FRP4) - 我幫你補回來了
-    frp4_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=FRP4")
-    frp4_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=FRP4")
+    # 3. 富蘭克林坦伯頓全球債 (FRP4) - 使用你剛提供的正確連結
+    frp4_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=FLZ92")
+    frp4_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=FLZ92")
 
     # 4. 貝萊德世界科技 (MLE24)
     mle24_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=SHZV9")
