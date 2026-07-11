@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>投資配息組合精算工具 - 富邦官網直連版</title>
+    <title>投資配息組合精算工具 - 智能雲端版</title>
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "edefb5ffc56240d287ee7cc74a055a64"}'></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -109,6 +109,11 @@
             gap: 6px;
             flex-wrap: wrap;
         }
+        .btn-container {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
         .quick-btn {
             padding: 6px 10px;
             background: #3182ce;
@@ -121,10 +126,6 @@
             transition: background 0.2s;
         }
         .quick-btn:hover { background: #2b6cb0; }
-        .quick-btn.jpm { background: #805ad5; }
-        .quick-btn.jpm:hover { background: #6b46c1; }
-        .quick-btn.frp { background: #dd6b20; }
-        .quick-btn.frp:hover { background: #c05621; }
         
         .quick-dropdown {
             padding: 5px 6px;
@@ -285,10 +286,9 @@
     <div class="quick-select-panel">
         <span class="panel-label">✨ 快選基金</span>
         <div class="panel-row">
-            <button onclick="insertCloudFund('allianz')" class="quick-btn">DSP5</button>
-            <button onclick="insertCloudFund('jpm')" class="quick-btn jpm">JFP11</button>
-            <button onclick="insertCloudFund('frp4')" class="quick-btn frp">FRP4</button>
-            <span style="font-size: 12px; color: #4a5568;">➔ 至：</span>
+            <div id="quickBtnContainer" class="btn-container">
+                </div>
+            <span style="font-size: 12px; color: #4a5568; margin-left: 4px;">➔ 至：</span>
             <select id="targetFundSelect" class="quick-dropdown">
                 <option value="0">基金 A</option>
                 <option value="1">基金 B</option>
@@ -358,7 +358,7 @@
                 </div>
                 <div class="grid-item">
                     <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="9.4500" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="nav-input" value="9.8800" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
                     <label>配息 (USD)</label>
@@ -434,11 +434,7 @@
 
 <script>
 let isUserTypingRate = false;
-let fubonCloudData = {
-    dsp5: { nav: 8.7731, div: 0.055 },
-    jfp11: { nav: 74.7600, div: 0.693 },
-    frp4: { nav: 9.4500, div: 0.0670 }
-}; 
+let processedFunds = {}; // 用來存放解構完畢的所有基金動態物件
 
 async function initializeApp() {
     await fetchExchangeRate();
@@ -460,7 +456,7 @@ async function fetchExchangeRate() {
             document.getElementById('payoutRateInput').value = twdRate;
         }
     } catch (error) {
-        console.error('匯率更新失敗：', error);
+        console.error(error);
     } finally {
         calculatePortfolio();
     }
@@ -473,50 +469,90 @@ async function fetchFubonOfficialData() {
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error('富邦資料讀取失敗');
         const proxyData = await response.json();
-        const data = JSON.parse(proxyData.contents);
+        const rawData = JSON.parse(proxyData.contents);
         
-        fubonCloudData.dsp5.nav = parseFloat(data.nav) || 8.7731;
-        fubonCloudData.dsp5.div = parseFloat(data.div) || 0.055;
-        fubonCloudData.jfp11.nav = parseFloat(data.jpm_nav) || 74.7600;
-        fubonCloudData.jfp11.div = parseFloat(data.jpm_div) || 0.693;
-        
-        statusDiv.innerText = `✅ 富邦人壽官方數據同步成功 (結算日期: ${data.date || '今日'})`;
+        // 🌟 智能解構：自動抓取並分類所有包含 _nav 和 _div 的任意新代號
+        // 先建立既有三檔的基準（相容舊格式）
+        processedFunds = {
+            'dsp5': { name: 'DSP5', nav: parseFloat(rawData.nav) || 8.7731, div: parseFloat(rawData.div) || 0.055 },
+            'jfp11': { name: 'JFP11', nav: parseFloat(rawData.jpm_nav) || 74.76, div: parseFloat(rawData.jpm_div) || 0.693 },
+            'frp4': { name: 'FRP4', nav: parseFloat(rawData.frp4_nav) || 9.88, div: parseFloat(rawData.frp4_div) || 0.067 }
+        };
+
+        // 自動掃描雲端 JSON，只要發現新建立的代號就自動吞進來
+        Object.keys(rawData).forEach(key => {
+            if (key.endsWith('_nav')) {
+                const code = key.replace('_nav', '');
+                if (!processedFunds[code]) processedFunds[code] = { name: code.toUpperCase(), nav: 0, div: 0 };
+                processedFunds[code].nav = parseFloat(rawData[key]);
+            }
+            if (key.endsWith('_div')) {
+                const code = key.replace('_div', '');
+                if (!processedFunds[code]) processedFunds[code] = { name: code.toUpperCase(), nav: 0, div: 0 };
+                processedFunds[code].div = parseFloat(rawData[key]);
+            }
+        });
+
+        statusDiv.innerText = `✅ 富邦人壽官方數據同步成功 (結算日期: ${rawData.date || '今日'})`;
         statusDiv.className = "cloud-status success";
         
+        // 🌟 智能長按鈕：根據解析出來的所有基金，在畫面上自動建立對應的快選按鈕
+        renderQuickButtons();
+
+        // 預設將前三檔刷入畫面 A、B、C 欄位
         const rows = document.querySelectorAll('.fund-row');
-        rows[0].querySelector('.nav-input').value = fubonCloudData.dsp5.nav;
-        rows[0].querySelector('.div-input').value = fubonCloudData.dsp5.div;
-        rows[1].querySelector('.nav-input').value = fubonCloudData.jfp11.nav;
-        rows[1].querySelector('.div-input').value = fubonCloudData.jfp11.div;
-        rows[2].querySelector('.nav-input').value = fubonCloudData.frp4.nav;
-        rows[2].querySelector('.div-input').value = fubonCloudData.frp4.div;
+        rows[0].querySelector('.nav-input').value = processedFunds['dsp5'].nav;
+        rows[0].querySelector('.div-input').value = processedFunds['dsp5'].div;
+        rows[1].querySelector('.nav-input').value = processedFunds['jfp11'].nav;
+        rows[1].querySelector('.div-input').value = processedFunds['jfp11'].div;
+        rows[2].querySelector('.nav-input').value = processedFunds['frp4'].nav;
+        rows[2].querySelector('.div-input').value = processedFunds['frp4'].div;
         
         calculatePortfolio();
     } catch (e) {
         console.error(e);
         statusDiv.innerText = "✅ 富邦官方通道保護中，已載入最新公告快取";
         statusDiv.className = "cloud-status success";
+        // 斷網防護機制
+        processedFunds = {
+            'dsp5': { name: 'DSP5', nav: 8.7731, div: 0.055 },
+            'jfp11': { name: 'JFP11', nav: 74.76, div: 0.693 },
+            'frp4': { name: 'FRP4', nav: 9.88, div: 0.067 }
+        };
+        renderQuickButtons();
     }
 }
 
-function insertCloudFund(type) {
+// 動態渲染按鈕
+function renderQuickButtons() {
+    const container = document.getElementById('quickBtnContainer');
+    container.innerHTML = ''; // 清空舊按鈕
+    
+    Object.keys(processedFunds).forEach(code => {
+        const fund = processedFunds[code];
+        const btn = document.createElement('button');
+        btn.className = 'quick-btn';
+        btn.innerText = fund.name;
+        // 針對特定代號上色維持美感
+        if (code === 'jfp11') btn.style.backgroundColor = '#805ad5';
+        if (code === 'frp4') btn.style.backgroundColor = '#dd6b20';
+        
+        btn.onclick = function() { insertCloudFund(code); };
+        container.appendChild(btn);
+    });
+}
+
+function insertCloudFund(code) {
+    const fund = processedFunds[code];
+    if (!fund) return;
+    
     const targetIndex = parseInt(document.getElementById('targetFundSelect').value);
     const rows = document.querySelectorAll('.fund-row');
     const targetRow = rows[targetIndex];
     
-    if (type === 'allianz') {
-        targetRow.querySelector('.fund-name-input').value = "DSP5";
-        targetRow.querySelector('.nav-input').value = fubonCloudData.dsp5.nav;
-        targetRow.querySelector('.div-input').value = fubonCloudData.dsp5.div;
-    } else if (type === 'jpm') {
-        targetRow.querySelector('.fund-name-input').value = "JFP11";
-        targetRow.querySelector('.nav-input').value = fubonCloudData.jfp11.nav;
-        targetRow.querySelector('.div-input').value = fubonCloudData.jfp11.div;
-    } else if (type === 'frp4') {
-        targetRow.querySelector('.fund-name-input').value = "FRP4";
-        targetRow.querySelector('.nav-input').value = fubonCloudData.frp4.nav;
-        targetRow.querySelector('.div-input').value = fubonCloudData.frp4.div;
-    }
+    targetRow.querySelector('.fund-name-input').value = fund.name;
+    targetRow.querySelector('.nav-input').value = fund.nav;
+    targetRow.querySelector('.div-input').value = fund.div;
     
     calculatePortfolio();
 }
