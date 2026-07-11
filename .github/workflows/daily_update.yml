@@ -1,6 +1,12 @@
 name: Update Fund Data
+
 on:
-  workflow_dispatch:
+  schedule:
+    # 這裡的設定是「台灣時間週一至週五的早上 9 點」
+    # 因為 GitHub Action 伺服器是 UTC 時間，台灣是 UTC+8，所以要減 8 小時
+    # 9點 - 8小時 = 1點 (即 01:00 UTC)
+    - cron: '0 1 * * 1-5' 
+  workflow_dispatch: # 保留這行，您以後還是可以手動點選「Run workflow」
 
 jobs:
   update-data:
@@ -8,7 +14,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4 # 改用 v4 版本
+      - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v4
         with: {python-version: '3.10'}
@@ -22,6 +28,5 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          # 如果沒有變更，避免報錯
           git add data.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update fund data" && git push)
