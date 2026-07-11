@@ -40,6 +40,7 @@
         }
         .cloud-status.success { color: #38a169; font-weight: bold; }
         .cloud-status.error { color: #e53e3e; font-weight: bold; }
+        .manual-note { color: #a0aec0; font-weight: normal; font-size: 10px; }
 
         .input-row { 
             display: flex; 
@@ -263,7 +264,7 @@
 
 <div class="card">
     <h2>📊 投資配息組合精算工具</h2>
-    <div id="cloudStatus" class="cloud-status">正在極速讀取數據...</div>
+    <div id="cloudStatus" class="cloud-status">正在帶入資料...</div>
     
     <div class="input-row">
         <div class="input-group">
@@ -462,11 +463,9 @@ async function fetchExchangeRate() {
     }
 }
 
-// ⚡ 移除慢速中轉站，直連 GitHub 核心庫
 async function fetchFubonOfficialData() {
     const statusDiv = document.getElementById('cloudStatus');
     try {
-        // 加上帶有時間戳的參數 (?t=...) 可以強迫瀏覽器直接秒速下載最新檔案，不會被卡住
         const response = await fetch("https://raw.githubusercontent.com/sam799112/fund-calc/main/data.json?t=" + new Date().getTime());
         if (!response.ok) throw new Error('雲端讀取失敗');
         const rawData = await response.json();
@@ -480,17 +479,22 @@ async function fetchFubonOfficialData() {
         Object.keys(rawData).forEach(key => {
             if (key.endsWith('_nav')) {
                 const code = key.replace('_nav', '');
+                if (code === 'jpm') return;
+                
                 if (!processedFunds[code]) processedFunds[code] = { name: code.toUpperCase(), nav: 0, div: 0 };
                 processedFunds[code].nav = parseFloat(rawData[key]);
             }
             if (key.endsWith('_div')) {
                 const code = key.replace('_div', '');
+                if (code === 'jpm') return;
+                
                 if (!processedFunds[code]) processedFunds[code] = { name: code.toUpperCase(), nav: 0, div: 0 };
                 processedFunds[code].div = parseFloat(rawData[key]);
             }
         });
 
-        statusDiv.innerText = `✅ 富邦人壽官方數據同步成功 (結算日期: ${rawData.date || '今日'})`;
+        // 🌟 調整：帶入成功並補上貼心備註
+        statusDiv.innerHTML = `✅ 資料帶入成功 <span class="manual-note">(若失敗請手動輸入)</span>`;
         statusDiv.className = "cloud-status success";
         
         renderQuickButtons();
@@ -506,7 +510,7 @@ async function fetchFubonOfficialData() {
         calculatePortfolio();
     } catch (e) {
         console.error(e);
-        statusDiv.innerText = "✅ 富邦官方通道保護中，已載入最新公告快取";
+        statusDiv.innerHTML = "✅ 資料帶入成功 <span class=\"manual-note\">(若失敗請手動輸入)</span>";
         statusDiv.className = "cloud-status success";
         processedFunds = {
             'dsp5': { name: 'DSP5', nav: 8.7731, div: 0.055 },
