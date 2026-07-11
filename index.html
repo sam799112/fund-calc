@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>投資配息組合精算工具 - 智能雲端版</title>
+    <title>投資配息組合精算工具 - 智能雲端極速版</title>
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "edefb5ffc56240d287ee7cc74a055a64"}'></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -263,7 +263,7 @@
 
 <div class="card">
     <h2>📊 投資配息組合精算工具</h2>
-    <div id="cloudStatus" class="cloud-status">正在直接讀取富邦人壽最新數據...</div>
+    <div id="cloudStatus" class="cloud-status">正在極速讀取數據...</div>
     
     <div class="input-row">
         <div class="input-group">
@@ -434,7 +434,7 @@
 
 <script>
 let isUserTypingRate = false;
-let processedFunds = {}; // 用來存放解構完畢的所有基金動態物件
+let processedFunds = {}; 
 
 async function initializeApp() {
     await fetchExchangeRate();
@@ -462,24 +462,21 @@ async function fetchExchangeRate() {
     }
 }
 
+// ⚡ 移除慢速中轉站，直連 GitHub 核心庫
 async function fetchFubonOfficialData() {
     const statusDiv = document.getElementById('cloudStatus');
     try {
-        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://raw.githubusercontent.com/sam799112/fund-calc/main/data.json");
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error('富邦資料讀取失敗');
-        const proxyData = await response.json();
-        const rawData = JSON.parse(proxyData.contents);
+        // 加上帶有時間戳的參數 (?t=...) 可以強迫瀏覽器直接秒速下載最新檔案，不會被卡住
+        const response = await fetch("https://raw.githubusercontent.com/sam799112/fund-calc/main/data.json?t=" + new Date().getTime());
+        if (!response.ok) throw new Error('雲端讀取失敗');
+        const rawData = await response.json();
         
-        // 🌟 智能解構：自動抓取並分類所有包含 _nav 和 _div 的任意新代號
-        // 先建立既有三檔的基準（相容舊格式）
         processedFunds = {
             'dsp5': { name: 'DSP5', nav: parseFloat(rawData.nav) || 8.7731, div: parseFloat(rawData.div) || 0.055 },
             'jfp11': { name: 'JFP11', nav: parseFloat(rawData.jpm_nav) || 74.76, div: parseFloat(rawData.jpm_div) || 0.693 },
             'frp4': { name: 'FRP4', nav: parseFloat(rawData.frp4_nav) || 9.88, div: parseFloat(rawData.frp4_div) || 0.067 }
         };
 
-        // 自動掃描雲端 JSON，只要發現新建立的代號就自動吞進來
         Object.keys(rawData).forEach(key => {
             if (key.endsWith('_nav')) {
                 const code = key.replace('_nav', '');
@@ -496,10 +493,8 @@ async function fetchFubonOfficialData() {
         statusDiv.innerText = `✅ 富邦人壽官方數據同步成功 (結算日期: ${rawData.date || '今日'})`;
         statusDiv.className = "cloud-status success";
         
-        // 🌟 智能長按鈕：根據解析出來的所有基金，在畫面上自動建立對應的快選按鈕
         renderQuickButtons();
 
-        // 預設將前三檔刷入畫面 A、B、C 欄位
         const rows = document.querySelectorAll('.fund-row');
         rows[0].querySelector('.nav-input').value = processedFunds['dsp5'].nav;
         rows[0].querySelector('.div-input').value = processedFunds['dsp5'].div;
@@ -513,7 +508,6 @@ async function fetchFubonOfficialData() {
         console.error(e);
         statusDiv.innerText = "✅ 富邦官方通道保護中，已載入最新公告快取";
         statusDiv.className = "cloud-status success";
-        // 斷網防護機制
         processedFunds = {
             'dsp5': { name: 'DSP5', nav: 8.7731, div: 0.055 },
             'jfp11': { name: 'JFP11', nav: 74.76, div: 0.693 },
@@ -523,17 +517,15 @@ async function fetchFubonOfficialData() {
     }
 }
 
-// 動態渲染按鈕
 function renderQuickButtons() {
     const container = document.getElementById('quickBtnContainer');
-    container.innerHTML = ''; // 清空舊按鈕
+    container.innerHTML = ''; 
     
     Object.keys(processedFunds).forEach(code => {
         const fund = processedFunds[code];
         const btn = document.createElement('button');
         btn.className = 'quick-btn';
         btn.innerText = fund.name;
-        // 針對特定代號上色維持美感
         if (code === 'jfp11') btn.style.backgroundColor = '#805ad5';
         if (code === 'frp4') btn.style.backgroundColor = '#dd6b20';
         
