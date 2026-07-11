@@ -264,7 +264,7 @@
 
     <div class="quick-select-container">
         <button onclick="applyAllianz()" class="quick-btn">
-            + 載入最新安聯收益成長
+            DSP5
         </button>
         <span style="font-size: 13px; color: #718096; font-weight: 500;">至</span>
         <select id="targetFundSelect" class="quick-dropdown">
@@ -512,7 +512,7 @@ function calculatePortfolio() {
     document.getElementById('totalTwdPayout').innerText = "NT$ " + Math.round(aggregatedTwdPayout).toLocaleString() + " 元";
 }
 
-// 安聯自動載入函數（已加上選單判斷）
+// 自動載入函數
 async function applyAllianz() {
     try {
         const response = await fetch('https://raw.githubusercontent.com/sam799112/fund-calc/main/data.json?t=' + new Date().getTime());
