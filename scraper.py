@@ -13,37 +13,25 @@ def get_data(url):
     try:
         res = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(res.content, 'html.parser')
-        
-        # 偵錯用：如果您抓不到數字，GitHub Logs 會印出它抓到的所有文字，方便您檢查
         all_td = soup.find_all('td')
-        
         for td in all_td:
             text = td.text.strip()
-            # 確保是數字格式 (簡單的正則匹配)
             if re.match(r'^\d+\.\d+$', text):
                 return text
-        
-        # 如果走到這裡都沒回傳，代表沒抓到數字
-        print(f"Debug: 網址 {url} 未找到數字")
         return "0.00"
-    except Exception as e:
-        print(f"Debug: 抓取 {url} 時發生錯誤: {e}")
+    except:
         return "0.00"
 
 def get_fund_data():
-    # 1. 安聯收益成長 (DSP5)
+    # 1. 自動抓取區：其他基金保持自動更新
     dsp5_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=TLZ64")
     dsp5_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=TLZ64")
-    
-    # 2. 摩根多重收益 (JFZN3)
     jpm_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=jfzn3")
     jpm_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=JFZN3")
 
-    # 3. 貝萊德世界科技 (MLE24)
-    # 使用您提供的富邦官網連結
-    mle24_url = "https://invest.fubonlife.com.tw/content.html?sUrl=$W$WB$WB05]DJHTM{A}SH^V9-MLE24"
-    mle24_nav = get_data(mle24_url)
-    mle24_div = mle24_nav # 若抓不到配息，之後可再調整為固定值或手動設定
+    # 2. 手動填寫區：MLE24 專用 (請直接修改下方這兩行數字)
+    mle24_nav = "21.63"  # <--- 請在這裡修改最新的淨值
+    mle24_div = "0.08"   # <--- 請在這裡修改最新的配息
     
     # 打包數據
     return {
