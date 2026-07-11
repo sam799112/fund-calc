@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>投資配息組合精算工具</title>
-    <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "edefb5ffc56240d287ee7cc74a055a64"}'></script>
+    <title>投資配息組合精算工具 - 專業商務版</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-            background: #f4f7f6; 
-            padding: 12px; 
+            background: #f0f4f8; 
+            padding: 16px 12px; 
             margin: 0;
             display: flex; 
             justify-content: center; 
         }
         .card { 
             background: white; 
-            padding: 20px 16px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
+            padding: 24px 16px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(26, 54, 93, 0.08); 
             max-width: 500px; 
             width: 100%; 
         }
@@ -27,11 +26,63 @@
             margin-top: 0; 
             color: #1a365d; 
             text-align: center; 
-            font-size: 20px; 
-            margin-bottom: 18px; 
-            border-bottom: 2px solid #e2e8f0; 
-            padding-bottom: 12px; 
+            font-size: 22px; 
+            margin-bottom: 8px; 
         }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        
+        /* 快選面板樣式 */
+        .quick-select-box {
+            background: #edf2f7;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .quick-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .btn-quick {
+            background: #fff;
+            border: 1px solid #cbd5e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #2b6cb0;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .btn-quick:active {
+            background: #e2e8f0;
+            transform: scale(0.98);
+        }
+        .btn-quick span {
+            display: block;
+            font-size: 10px;
+            color: #718096;
+            font-weight: normal;
+            margin-top: 2px;
+        }
+
         .input-row { 
             display: flex; 
             gap: 12px; 
@@ -68,37 +119,37 @@
             border-color: #3182ce; 
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.4); 
             outline: none; 
-            background: #fff;
         }
         
         .section-title {
             font-size: 14px; 
             color: #1a365d; 
             font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 24px;
+            margin-bottom: 12px;
             display: block;
         }
 
         .fund-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             margin-bottom: 15px;
         }
         .fund-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
         }
         .fund-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px dashed #cbd5e0;
-            padding-bottom: 6px;
-            margin-bottom: 8px;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
             gap: 10px;
         }
         
@@ -109,7 +160,7 @@
             border: none;
             background: transparent;
             padding: 4px;
-            width: 45%;
+            width: 55%;
             border-bottom: 1px solid transparent;
             border-radius: 0;
         }
@@ -132,20 +183,21 @@
         .grid-item label {
             font-size: 11px;
             color: #718096;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             font-weight: normal;
         }
         .pct-input { background: #fffaf0; border-color: #fbd38d; font-weight: bold; color: #dd6b20; text-align: center; }
         .nav-input, .div-input { text-align: center; }
 
-        .fund-footer {
+        .fund-meta-info {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             font-size: 12px;
-            color: #38a169;
-            font-weight: 500;
-            margin-top: 6px;
+            margin-top: 8px;
+            padding-top: 4px;
         }
+        .fund-twd-alloc { color: #4a5568; font-weight: 500; }
+        .fund-payout-est { color: #38a169; font-weight: bold; }
 
         .warning { 
             color: #e53e3e; 
@@ -162,10 +214,9 @@
         .result-box { 
             background: #f7fafc; 
             border: 1px solid #e2e8f0; 
-            padding: 16px; 
-            border-radius: 12px; 
+            padding: 18px; 
+            border-radius: 14px; 
             margin-top: 20px; 
-            display: block; 
         }
         .result-item { 
             display: flex; 
@@ -174,14 +225,14 @@
             font-size: 14px; 
             color: #4a5568; 
         }
-        .divider { border-top: 1px solid #e2e8f0; margin: 10px 0; }
+        .divider { border-top: 1px solid #e2e8f0; margin: 12px 0; }
         .highlight { font-weight: bold; color: #2b6cb0; }
         
         .final-row { 
             background: #f0fff4; 
             border: 2px solid #c6f6d5; 
-            padding: 14px; 
-            border-radius: 10px; 
+            padding: 16px; 
+            border-radius: 12px; 
             margin-top: 15px; 
             text-align: center;
         }
@@ -195,42 +246,56 @@
         .highlight-twd-payout { 
             font-weight: bold; 
             color: #38a169; 
-            font-size: 28px; 
+            font-size: 30px; 
             display: block;
         }
-        .fund-twd-payout { font-weight: bold; color: #2d3748; font-size: 13px; text-align: right; white-space: nowrap; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>📊 投資配息組合精算工具</h2>
+    <div class="subtitle">商務簡報專用版 (支援數據即時微調)</div>
     
-    <div class="input-row">
-        <div class="input-group">
-            <label for="amount">1. 總保費 (台幣)</label>
-            <input type="number" id="amount" value="1000000" inputmode="numeric" oninput="calculatePortfolio()">
+    <div class="quick-select-box">
+        <span class="quick-title">💡 熱門高配息基金數據快選（點擊一鍵帶入）</span>
+        <div class="quick-buttons">
+            <button class="btn-quick" onclick="applyPresetFund('安聯收益成長基金-AM美金', 8.55, 0.0510)">
+                安聯收益成長
+                <span>淨值:8.55 | 配息:0.051</span>
+            </button>
+            <button class="btn-quick" onclick="applyPresetFund('聯博全球多元收益-AA美金', 10.25, 0.0425)">
+                聯博多元收益
+                <span>淨值:10.25 | 配息:0.0425</span>
+            </button>
         </div>
     </div>
     
     <div class="input-row">
         <div class="input-group">
-            <label for="buyRateInput">2-1. 進場換匯匯率</label>
-            <input type="number" id="buyRateInput" value="32.1" step="0.01" inputmode="decimal" onfocus="isUserTypingRate = true;" oninput="isUserTypingRate = true; document.getElementById('payoutRateInput').value = this.value; calculatePortfolio();">
+            <label for="amount">1. 規劃總保費 (台幣)</label>
+            <input type="number" id="amount" value="3000000" inputmode="numeric" oninput="calculatePortfolio()">
+        </div>
+    </div>
+    
+    <div class="input-row">
+        <div class="input-group">
+            <label for="buyRateInput">2-1. 目前換匯匯率</label>
+            <input type="number" id="buyRateInput" value="32.10" step="0.01" inputmode="decimal" onfocus="isUserTypingRate = true;" oninput="isUserTypingRate = true; document.getElementById('payoutRateInput').value = this.value; calculatePortfolio();">
         </div>
         <div class="input-group">
-            <label for="payoutRateInput">2-2. 未來配息匯率 (看波動)</label>
-            <input type="number" id="payoutRateInput" value="32.1" step="0.01" inputmode="decimal" oninput="calculatePortfolio()">
+            <label for="payoutRateInput">2-2. 未來配息匯率</label>
+            <input type="number" id="payoutRateInput" value="32.10" step="0.01" inputmode="decimal" oninput="calculatePortfolio()">
         </div>
     </div>
 
-    <span class="section-title">3. 設定配置比例與參數（須等於 100%）</span>
+    <span class="section-title">3. 配置比例與精算參數（比例加總須等於 100%）</span>
     
-    <div class="fund-list">
+    <div class="fund-list" id="fundListContainer">
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <input type="text" class="fund-name-input" value="基金 A" placeholder="點擊輸入基金名稱">
-                <span class="fund-twd-payout">投入金額：NT$ 0</span>
+                <input type="text" class="fund-name-input" value="安聯收益成長基金-AM美金">
+                <span class="fund-twd-alloc" style="font-size:11px; color:#718096;">手動微調 ✎</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -242,17 +307,20 @@
                     <input type="number" class="nav-input" value="8.55" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
-                    <label>配息 (USD)</label>
-                    <input type="number" class="div-input" value="0.051" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <label>單位配息(USD)</label>
+                    <input type="number" class="div-input" value="0.0510" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
-            <div class="fund-footer">預估月配息：NT$ 0</div>
+            <div class="fund-meta-info">
+                <span class="fund-twd-alloc text-alloc">投入金額：NT$ 0</span>
+                <span class="fund-payout-est text-payout">預估月配息：NT$ 0</span>
+            </div>
         </div>
 
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <input type="text" class="fund-name-input" value="基金 B" placeholder="點擊輸入基金名稱">
-                <span class="fund-twd-payout">投入金額：NT$ 0</span>
+                <input type="text" class="fund-name-input" value="基金 B">
+                <span class="fund-twd-alloc" style="font-size:11px; color:#718096;">手動微調 ✎</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -264,17 +332,20 @@
                     <input type="number" class="nav-input" value="10.25" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
-                    <label>配息 (USD)</label>
+                    <label>單位配息(USD)</label>
                     <input type="number" class="div-input" value="0.0425" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
-            <div class="fund-footer">預估月配息：NT$ 0</div>
+            <div class="fund-meta-info">
+                <span class="fund-twd-alloc text-alloc">投入金額：NT$ 0</span>
+                <span class="fund-payout-est text-payout">預估月配息：NT$ 0</span>
+            </div>
         </div>
 
         <div class="fund-card fund-row">
             <div class="fund-header">
-                <input type="text" class="fund-name-input" value="基金 C" placeholder="點擊輸入基金名稱">
-                <span class="fund-twd-payout">投入金額：NT$ 0</span>
+                <input type="text" class="fund-name-input" value="基金 C">
+                <span class="fund-twd-alloc" style="font-size:11px; color:#718096;">手動微調 ✎</span>
             </div>
             <div class="fund-grid">
                 <div class="grid-item">
@@ -283,58 +354,17 @@
                 </div>
                 <div class="grid-item">
                     <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="11.4" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
+                    <input type="number" class="nav-input" value="11.40" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
                 <div class="grid-item">
-                    <label>配息 (USD)</label>
+                    <label>單位配息(USD)</label>
                     <input type="number" class="div-input" value="0.0485" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
                 </div>
             </div>
-            <div class="fund-footer">預估月配息：NT$ 0</div>
-        </div>
-
-        <div class="fund-card fund-row">
-            <div class="fund-header">
-                <input type="text" class="fund-name-input" value="基金 D" placeholder="點擊輸入基金名稱">
-                <span class="fund-twd-payout">投入金額：NT$ 0</span>
+            <div class="fund-meta-info">
+                <span class="fund-twd-alloc text-alloc">投入金額：NT$ 0</span>
+                <span class="fund-payout-est text-payout">預估月配息：NT$ 0</span>
             </div>
-            <div class="fund-grid">
-                <div class="grid-item">
-                    <label>比例 (%)</label>
-                    <input type="number" class="pct-input" value="0" inputmode="numeric" oninput="calculatePortfolio()">
-                </div>
-                <div class="grid-item">
-                    <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="10.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
-                </div>
-                <div class="grid-item">
-                    <label>配息 (USD)</label>
-                    <input type="number" class="div-input" value="0.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
-                </div>
-            </div>
-            <div class="fund-footer">預估月配息：NT$ 0</div>
-        </div>
-
-        <div class="fund-card fund-row">
-            <div class="fund-header">
-                <input type="text" class="fund-name-input" value="基金 E" placeholder="點擊輸入基金名稱">
-                <span class="fund-twd-payout">投入金額：NT$ 0</span>
-            </div>
-            <div class="fund-grid">
-                <div class="grid-item">
-                    <label>比例 (%)</label>
-                    <input type="number" class="pct-input" value="0" inputmode="numeric" oninput="calculatePortfolio()">
-                </div>
-                <div class="grid-item">
-                    <label>淨值 (USD)</label>
-                    <input type="number" class="nav-input" value="10.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
-                </div>
-                <div class="grid-item">
-                    <label>配息 (USD)</label>
-                    <input type="number" class="div-input" value="0.0" step="0.0001" inputmode="decimal" oninput="calculatePortfolio()">
-                </div>
-            </div>
-            <div class="fund-footer">預估月配息：NT$ 0</div>
         </div>
     </div>
     
@@ -342,16 +372,16 @@
 
     <div id="result" class="result-box">
         <div class="result-item"><span>保費適用級距：</span><span id="tier" style="font-weight:600;">-</span></div>
-        <div class="result-item"><span>手續費用率：</span><span id="feeRate" style="font-weight:600; color:#e53e3e;">-</span></div>
-        <div class="result-item"><span>扣除總保費：</span><span id="totalPremium">-</span></div>
+        <div class="result-item"><span>保單費用率：</span><span id="feeRate" style="font-weight:600; color:#e53e3e;">-</span></div>
+        <div class="result-item"><span>前置扣除費用：</span><span id="totalPremium">-</span></div>
         
         <div class="divider"></div>
         
-        <div class="result-item"><span>實際投資總淨額 (台幣)：</span><span id="totalNetTwd" class="highlight">-</span></div>
-        <div class="result-item"><span>實際投資總淨額 (美元)：</span><span id="totalNetUsd" class="highlight" style="color:#4a5568;">-</span></div>
+        <div class="result-item"><span>實際投資淨本金 (台幣)：</span><span id="totalNetTwd" class="highlight">-</span></div>
+        <div class="result-item"><span>實際投資淨本金 (美元)：</span><span id="totalNetUsd" class="highlight" style="color:#4a5568;">-</span></div>
         
         <div class="final-row">
-            <span class="final-title">💰 投資組合預估總月配息 (台幣)</span>
+            <span class="final-title">💰 投資組合預估每月總配息 (台幣)</span>
             <span id="totalTwdPayout" class="highlight-twd-payout">-</span>
         </div>
     </div>
@@ -360,6 +390,7 @@
 <script>
 let isUserTypingRate = false;
 
+// 自動抓取即時匯率
 async function fetchExchangeRate() {
     if (isUserTypingRate) {
         calculatePortfolio();
@@ -367,7 +398,7 @@ async function fetchExchangeRate() {
     }
     try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
-        if (!response.ok) throw new Error('網路回應不成功');
+        if (!response.ok) throw new Error('匯率更新失敗');
         const data = await response.json();
         
         if (data && data.rates && data.rates.TWD && !isUserTypingRate) {
@@ -376,8 +407,20 @@ async function fetchExchangeRate() {
             document.getElementById('payoutRateInput').value = twdRate;
         }
     } catch (error) {
-        console.error('無法取得即時匯率：', error);
+        console.error('無法取得即時匯率，將使用預設值：', error);
     } finally {
+        calculatePortfolio();
+    }
+}
+
+// 點擊快選按鈕時，自動覆蓋「目前被選中或空的欄位」，這裡預設將數據覆蓋至基金 B
+function applyPresetFund(name, nav, divValue) {
+    const rows = document.querySelectorAll('.fund-row');
+    // 預設覆蓋到第二檔基金 (基金 B)
+    if(rows.length > 1) {
+        rows[1].querySelector('.fund-name-input').value = name;
+        rows[1].querySelector('.nav-input').value = nav;
+        rows[1].querySelector('.div-input').value = divValue;
         calculatePortfolio();
     }
 }
@@ -416,8 +459,9 @@ function calculatePortfolio() {
         warningBox.style.display = 'none';
     }
 
+    // 依據您原本的保費高資產級距邏輯
     let feeRate = 0; let tierText = "";
-    if (amount < 2000000) { feeRate = 0.05; tierText = "200 萬以內(不含)"; }
+    if (amount < 2000000) { feeRate = 0.05; tierText = "200 萬以內"; }
     else if (amount >= 2000000 && amount < 5000000) { feeRate = 0.04; tierText = "200 萬(含) ~ 未滿 500 萬"; }
     else if (amount >= 5000000 && amount < 10000000) { feeRate = 0.03; tierText = "500 萬(含) ~ 未滿 1,000 萬"; }
     else { feeRate = 0.02; tierText = "1,000 萬(含)以上"; }
@@ -432,25 +476,24 @@ function calculatePortfolio() {
         const pct = parseFloat(row.querySelector('.pct-input').value) || 0;
         const nav = parseFloat(row.querySelector('.nav-input').value) || 0;
         const divPerUnit = parseFloat(row.querySelector('.div-input').value) || 0;
-        const payoutSpan = row.querySelector('.fund-twd-payout');
-        const footerDiv = row.querySelector('.fund-footer');
+        const allocSpan = row.querySelector('.text-alloc');
+        const payoutSpan = row.querySelector('.text-payout');
 
         const fundPremiumAllocated = totalNetTwd * (pct / 100);
-        payoutSpan.innerText = "投入金額：NT$ " + Math.round(fundPremiumAllocated).toLocaleString();
+        allocSpan.innerText = "投入金額：NT$ " + Math.round(fundPremiumAllocated).toLocaleString();
 
         if (pct === 0 || nav <= 0 || divPerUnit < 0) {
-            footerDiv.innerText = "預估月配息：NT$ 0";
+            payoutSpan.innerText = "預估月配息：NT$ 0";
             return;
         }
 
         const fundNetUsd = totalNetUsd * (pct / 100);
         const fundUnits = fundNetUsd / nav;
         const fundUsdPayout = fundUnits * divPerUnit;
-        
         const fundTwdPayout = fundUsdPayout * payoutRate;
 
         aggregatedTwdPayout += fundTwdPayout;
-        footerDiv.innerText = "預估月配息：NT$ " + Math.round(fundTwdPayout).toLocaleString();
+        payoutSpan.innerText = "預估月配息：NT$ " + Math.round(fundTwdPayout).toLocaleString();
     });
 
     document.getElementById('tier').innerText = tierText;
