@@ -4,8 +4,13 @@ import json
 import re
 from datetime import datetime
 
+# 加入反快取 (Cache-Control 等) 標頭，強制抓取最新網頁資料
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/115.0.0.0'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/115.0.0.0',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'If-None-Match': '',
+    'If-Modified-Since': '0'
 }
 
 def get_data(url):
@@ -30,7 +35,7 @@ def get_fund_data():
     jpm_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=jfzn3")
     jpm_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=JFZN3")
 
-    # 3. 富蘭克林坦伯頓全球債 (FRP4) - 使用你剛提供的正確連結
+    # 3. 富蘭克林坦伯頓全球債 (FRP4)
     frp4_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=FLZ92")
     frp4_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=FLZ92")
 
