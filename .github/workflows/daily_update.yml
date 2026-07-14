@@ -5,7 +5,7 @@ on:
     # 這裡的設定是「台灣時間週一至週五的早上 9 點」
     # 因為 GitHub Action 伺服器是 UTC 時間，台灣是 UTC+8，所以要減 8 小時
     # 9點 - 8小時 = 1點 (即 01:00 UTC)
-    - cron: '0 1 * * 1-5' 
+    - cron: '15 1 * * 1-5' 
   workflow_dispatch: # 保留這行，您以後還是可以手動點選「Run workflow」
 
 jobs:
