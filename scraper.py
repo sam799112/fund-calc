@@ -42,7 +42,8 @@ def get_fund_data():
     jpm_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=jfzn3")
     jpm_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=JFZN3")
 
-    frp4_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=FLZ92")
+    # 🌟 這裡已修改成標準境外基金歷史淨值表網址 (wb02.djhtm)
+    frp4_nav = get_data("https://www.moneydj.com/funddj/yp/wb02.djhtm?a=FLZ92")
     frp4_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=FLZ92")
 
     mle24_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=SHZV9")
