@@ -42,8 +42,8 @@ def get_fund_data():
     jpm_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=jfzn3")
     jpm_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=JFZN3")
 
-    # 🌟 這裡已修改成標準境外基金歷史淨值表網址 (wb02.djhtm)
-    frp4_nav = get_data("https://www.moneydj.com/funddj/yp/wb02.djhtm?a=FLZ92")
+    # 🌟 終極解法：換成富邦人壽的 MoneyDJ 專線，完美避開高收益債警語攔截
+    frp4_nav = get_data("https://invest.fubonlife.com.tw/w/wb/wb02.djhtm?a=FLZ92-FRP4")
     frp4_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=FLZ92")
 
     mle24_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=SHZV9")
@@ -64,7 +64,6 @@ def get_fund_data():
         "mle24_nav": mle24_nav["value"],
         "mle24_div": mle24_div["value"],
         
-        # 這裡從「現在時間」改成了「真實網頁上的淨值日期」
         "date": real_nav_date 
     }
 
