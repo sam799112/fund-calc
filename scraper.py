@@ -42,9 +42,9 @@ def get_fund_data():
     jpm_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=jfzn3")
     jpm_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=JFZN3")
 
-    # 🌟 終極解法：換成富邦人壽的 MoneyDJ 專線，完美避開高收益債警語攔截
+    # 🌟 FRP4 的淨值與配息通通改走富邦專線，全面避開警語攔截
     frp4_nav = get_data("https://invest.fubonlife.com.tw/w/wb/wb02.djhtm?a=FLZ92-FRP4")
-    frp4_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=FLZ92")
+    frp4_div = get_data("https://invest.fubonlife.com.tw/w/wb/wb05.djhtm?a=FLZ92-FRP4")
 
     mle24_nav = get_data("https://www.moneydj.com/funddj/ya/yp010001.djhtm?a=SHZV9")
     mle24_div = get_data("https://www.moneydj.com/funddj/yp/wb05.djhtm?a=SHZV9")
